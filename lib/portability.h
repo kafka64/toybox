@@ -431,14 +431,7 @@ int timer_settime_wrap(timer_t t, int flags, struct itimerspec *val,
 #ifdef __VXWORKS__
 /*FIXME*/
 #define wcwidth( c )   2
-#define fstatat(fd, name, st, sym)     stat(fd, name, st, sym) 
-#define readlinkat(fd, name, st, sym)  readlink(name, st, sym) 
-#define mkdirat(atfd, dir, mode)       mkdir(dir, mode)
-#define fchmodat(fd, name, mode, x)    chmod(name, mode)
-#define fchownat(fd, name, mode, x)    fchown(name, mode, x)
-#define unlinkat(fd, name, x)          unlink(name )
 #define utimesat(fd, a, b, c)          utimes(a,b)
-#define linkat(fd, name, x, y, z)      link(name,y)
 #define faccessat(fd, path, mode, x)   access(path,mode)
 #define setsid()  getpid( )
 #define getsid(pid)   (pid)
