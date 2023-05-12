@@ -162,10 +162,13 @@ void date_main(void)
     struct timespec ts;
     struct stat st;
 
+#ifndef __VXWORKS__
     if (TT.r) {
       xstat(TT.r, &st);
       ts = st.st_mtim;
-    } else clock_gettime(CLOCK_REALTIME, &ts);
+    } else 
+#endif	
+	clock_gettime(CLOCK_REALTIME, &ts);
 
     t = ts.tv_sec;
     TT.nano = ts.tv_nsec;

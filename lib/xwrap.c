@@ -710,12 +710,14 @@ void xchroot(char *path)
   xchdir("/");
 }
 
+#ifndef __VXWORKS__
 struct passwd *xgetpwuid(uid_t uid)
 {
   struct passwd *pwd = getpwuid(uid);
   if (!pwd) error_exit("bad uid %ld", (long)uid);
   return pwd;
 }
+#endif
 
 struct group *xgetgrgid(gid_t gid)
 {
@@ -725,6 +727,7 @@ struct group *xgetgrgid(gid_t gid)
   return group;
 }
 
+#ifndef __VXWORKS__
 unsigned xgetuid(char *name)
 {
   struct passwd *up = getpwnam(name);
@@ -738,6 +741,7 @@ unsigned xgetuid(char *name)
 
   error_exit("bad user '%s'", name);
 }
+#endif
 
 unsigned xgetgid(char *name)
 {
@@ -753,6 +757,7 @@ unsigned xgetgid(char *name)
   error_exit("bad group '%s'", name);
 }
 
+#ifndef __VXWORKS__
 struct passwd *xgetpwnam(char *name)
 {
   struct passwd *up = getpwnam(name);
@@ -760,6 +765,7 @@ struct passwd *xgetpwnam(char *name)
   if (!up) perror_exit("user '%s'", name);
   return up;
 }
+#endif
 
 struct group *xgetgrnam(char *name)
 {
@@ -771,12 +777,13 @@ struct group *xgetgrnam(char *name)
 
 // setuid() can fail (for example, too many processes belonging to that user),
 // which opens a security hole if the process continues as the original user.
-
+#ifndef __VXWORKS__
 void xsetuser(struct passwd *pwd)
 {
   if (initgroups(pwd->pw_name, pwd->pw_gid) || setgid(pwd->pw_uid)
       || setuid(pwd->pw_uid)) perror_exit("xsetuser '%s'", pwd->pw_name);
 }
+#endif
 
 // This can return null (meaning file not found).  It just won't return null
 // for memory allocation reasons.

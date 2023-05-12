@@ -167,8 +167,12 @@ static int cp_node(struct dirtree *try)
         fprintf(stderr, "%s: overwrite '%s'", toys.which->name,
           s = dirtree_path(try, 0));
         if (yesno(0)) rc++;
-      } else if (!((flags&FLAG_u) && nanodiff(&try->st.st_mtim, &cst.st_mtim)>0)
+      } 
+      /* FIXME */
+#ifndef __VXWORKS__
+       else if (!((flags&FLAG_u) && nanodiff(&try->st.st_mtim, &cst.st_mtim)>0)
                  && !(flags & FLAG_n)) rc++;
+#endif      
       free(s);
       if (!rc) return save;
     }

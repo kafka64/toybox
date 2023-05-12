@@ -1049,7 +1049,9 @@ void mode_to_string(mode_t mode, char *buf)
   else if (S_ISCHR(mode)) c = 'c';
   else if (S_ISLNK(mode)) c = 'l';
   else if (S_ISFIFO(mode)) c = 'p';
+#ifdef S_ISSOCK  
   else if (S_ISSOCK(mode)) c = 's';
+#endif  
   else c = '-';
   *buf = c;
 }
@@ -1284,6 +1286,7 @@ char *next_printf(char *s, char **start)
   return 0;
 }
 
+#ifndef __VXWORKS__
 // Return cached passwd entries.
 struct passwd *bufgetpwnamuid(char *name, uid_t uid)
 {
@@ -1358,6 +1361,7 @@ struct group *bufgetgrnamgid(char *name, gid_t gid)
 
   return &list->gr;
 }
+#endif
 
 struct group *bufgetgrgid(gid_t gid)
 {
@@ -1394,6 +1398,7 @@ int regexec0(regex_t *preg, char *string, long len, int nmatch,
   return regexec(preg, string, nmatch, pmatch, eflags|REG_STARTEND);
 }
 
+#ifndef __VXWORKS__
 // Return user name or string representation of number, returned buffer
 // lasts until next call.
 char *getusername(uid_t uid)
@@ -1404,6 +1409,7 @@ char *getusername(uid_t uid)
   sprintf(unum, "%u", (unsigned)uid);
   return pw ? pw->pw_name : unum;
 }
+#endif
 
 // Return group name or string representation of number, returned buffer
 // lasts until next call.

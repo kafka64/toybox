@@ -110,6 +110,7 @@ char *xpop_env(char *name)
   return s;
 }
 
+#ifndef __VXWORKS__
 // reset environment for a user, optionally clearing most of it
 void reset_env(struct passwd *p, int clear)
 {
@@ -143,3 +144,4 @@ void reset_env(struct passwd *p, int clear)
   setenv("USER", p->pw_name, 1);
   setenv("LOGNAME", p->pw_name, 1);
 }
+#endif

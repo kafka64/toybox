@@ -57,7 +57,11 @@ void logger_main(void)
     *facilities[] = {"kern", "user", "mail", "daemon", "auth", "syslog",
                      "lpr", "news", "uucp", "cron", "authpriv", "ftp"};
 
+#ifdef __VXWORKS__  
+  if (!TT.t) TT.t = "";
+#else  
   if (!TT.t) TT.t = xgetpwuid(geteuid())->pw_name;
+#endif  
   if (TT.p) {
     if (!(s1 = strchr(TT.p, '.'))) s1 = TT.p;
     else {

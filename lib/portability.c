@@ -92,7 +92,8 @@ struct mtab_list *xgetmountlist(char *path)
 
   return mtlist;
 }
-
+#elif defined (__VXWORKS__)
+  /* FIXME */
 #else
 
 #include <mntent.h>
@@ -215,7 +216,8 @@ int xnotify_wait(struct xnotify *not, char **path)
     }
   }
 }
-
+#elif defined(__VXWORKS__)
+   /* FIXME */
 #else
 
 #include <sys/inotify.h>
@@ -313,7 +315,7 @@ ssize_t xattr_fset(int fd, const char* name,
   return fsetxattr(fd, name, value, size, 0, flags);
 }
 
-#elif !defined(__FreeBSD__) && !defined(__OpenBSD__)
+#elif !defined(__FreeBSD__) && !defined(__OpenBSD__) && !defined(__VXWORKS__)
 
 ssize_t xattr_get(const char *path, const char *name, void *value, size_t size)
 {
@@ -411,8 +413,11 @@ static const struct signame signames[] = {
   SIGNIFY(USR1), SIGNIFY(USR2), SIGNIFY(SYS), SIGNIFY(TRAP),
   SIGNIFY(VTALRM), SIGNIFY(XCPU), SIGNIFY(XFSZ),
   // Non-POSIX signals that cause termination
-  SIGNIFY(PROF), SIGNIFY(IO),
+  SIGNIFY(PROF), 
   // signals only present/absent on some targets (mips and macos)
+#ifdef SIGIO
+  SIGNIFY(IO),
+#endif  
 #ifdef SIGEMT
   SIGNIFY(EMT),
 #endif
@@ -436,7 +441,9 @@ static const struct signame signames[] = {
   SIGNIFY(CHLD), SIGNIFY(CONT), SIGNIFY(STOP), SIGNIFY(TSTP),
   SIGNIFY(TTIN), SIGNIFY(TTOU), SIGNIFY(URG),
   // Non-POSIX signals that don't cause termination
+#ifdef SIGWINCH  
   SIGNIFY(WINCH),
+#endif  
 };
 
 #undef SIGNIFY
@@ -514,8 +521,10 @@ int dev_minor(int dev)
   return ((dev&0xfff00000)>>12)|(dev&0xff);
 #elif defined(__APPLE__)
   return dev&0xffffff;
-#elif defined(__FreeBSD__) || defined(__OpenBSD__)
+#elif defined(__FreeBSD__) || defined(__OpenBSD__) 
   return minor(dev);
+#elif  defined(__VXWORKS__)
+  return dev&0xffff;
 #else
 #error
 #endif
@@ -527,9 +536,11 @@ int dev_major(int dev)
   return (dev&0xfff00)>>8;
 #elif defined(__APPLE__)
   return (dev>>24)&0xff;
-#elif defined(__FreeBSD__) || defined(__OpenBSD__)
+#elif defined(__FreeBSD__) || defined(__OpenBSD__)  
   return major(dev);
-#else
+#elif defined(__VXWORKS__)
+  return (((dev) >> 16) & 0xFFFF);
+#else		  
 #error
 #endif
 }
@@ -540,8 +551,10 @@ int dev_makedev(int major, int minor)
   return (minor&0xff)|((major&0xfff)<<8)|((minor&0xfff00)<<12);
 #elif defined(__APPLE__)
   return (minor&0xffffff)|((major&0xff)<<24);
-#elif defined(__FreeBSD__) || defined(__OpenBSD__)
+#elif defined(__FreeBSD__) || defined(__OpenBSD__) 
   return makedev(major, minor);
+#elif defined(__VXWORKS__)
+  return  ((((major) & 0xFFFF) << 16) | ((minor) & 0xFFFF));
 #else
 #error
 #endif
@@ -549,7 +562,7 @@ int dev_makedev(int major, int minor)
 
 char *fs_type_name(struct statfs *statfs)
 {
-#if defined(__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__)
+#if defined(__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__) 
   // macOS has an `f_type` field, but assigns values dynamically as filesystems
   // are registered. They do give you the name directly though, so use that.
   return statfs->f_fstypename;

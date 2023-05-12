@@ -130,7 +130,7 @@ int xpclose_both(pid_t pid, int *pipes);
 pid_t xpopen(char **argv, int *pipe, int isstdout);
 pid_t xpclose(pid_t pid, int pipe);
 int xrun(char **argv);
-char *xrunread(char *argv[], char *stdin);
+char *xrunread(char *argv[], char *std_in);
 int xpspawn(char **argv, int*pipes);
 void xaccess(char *path, int flags);
 void xunlink(char *path);
@@ -159,13 +159,15 @@ void xstat(char *path, struct stat *st);
 char *xabspath(char *path, int exact);
 void xchdir(char *path);
 void xchroot(char *path);
+#ifndef __VXWORKS__
 struct passwd *xgetpwuid(uid_t uid);
-struct group *xgetgrgid(gid_t gid);
 struct passwd *xgetpwnam(char *name);
+void xsetuser(struct passwd *pwd);
+#endif
+struct group *xgetgrgid(gid_t gid);
 struct group *xgetgrnam(char *name);
 unsigned xgetuid(char *name);
 unsigned xgetgid(char *name);
-void xsetuser(struct passwd *pwd);
 char *xreadlinkat(int dir, char *name);
 char *xreadlink(char *name);
 double xstrtod(char *s);
@@ -378,7 +380,9 @@ long long gunzip_fd_preload(int infd, int outfd, char *buf, unsigned len);
 struct mtab_list {
   struct mtab_list *next, *prev;
   struct stat stat;
+#ifndef __VXWORKS__  
   struct statvfs statvfs;
+#endif  
   char *dir;
   char *device;
   char *opts;

@@ -284,7 +284,9 @@ void start_redraw(unsigned *width, unsigned *height)
     *height = 25;
     set_terminal(0, 1, 0, 0);
     sigatexit(tty_sigreset);
+#ifdef  SIGWINCH   
     xsignal(SIGWINCH, generic_signal);
+#endif    
   }
   if (toys.signal != -1) {
     toys.signal = -1;

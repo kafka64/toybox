@@ -31,7 +31,7 @@ config GETCONF
 #define _SC_XOPEN_UUCP -1
 #endif
 
-#ifdef __APPLE__
+#if defined( __APPLE__) || defined(__VXWORKS__)
 // macOS doesn't have a bunch of stuff. The actual macOS getconf says
 // "no such parameter", but -- unless proven otherwise -- it seems more useful
 // for portability if we act like we understood but say "undefined"?
@@ -45,6 +45,14 @@ config GETCONF
 #define _SC_V7_LPBIG_OFFBIG -1
 #define _CS_V7_ENV -1
 #endif
+
+#ifdef __VXWORKS__
+#define _SC_PHYS_PAGES -1
+#define _SC_NPROCESSORS_ONLN -1
+
+
+#endif
+
 
 struct config {
   char *name;
@@ -78,13 +86,15 @@ static struct config sysconfs[] = {
   CONF(V7_ILP32_OFFBIG), CONF(V7_LP64_OFF64), CONF(V7_LPBIG_OFFBIG),
 
   /* POSIX.2 */
+#ifndef __VXWORKS__  
 #undef CONF
 #define CONF(n) {"POSIX2_" #n,_SC_2_ ## n}
   CONF(C_BIND), CONF(C_DEV), CONF(CHAR_TERM), CONF(FORT_DEV), CONF(FORT_RUN),
   CONF(LOCALEDEF), CONF(PBS), CONF(PBS_ACCOUNTING), CONF(PBS_CHECKPOINT),
   CONF(PBS_LOCATE), CONF(PBS_MESSAGE), CONF(PBS_TRACK), CONF(SW_DEV),
   CONF(UPE), CONF(VERSION),
-
+#endif
+  
   /* X/Open */
 #undef CONF
 #define CONF(n) {"_XOPEN_" #n,_SC_XOPEN_ ## n}

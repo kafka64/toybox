@@ -18,7 +18,9 @@
 #include <inttypes.h>
 #include <limits.h>
 #include <math.h>
+#ifndef __VXWORKS__
 #include <paths.h>
+#endif
 #include <pwd.h>
 #include <regex.h>
 #include <sched.h>
@@ -34,7 +36,9 @@
 #include <sys/mman.h>
 #include <sys/resource.h>
 #include <sys/stat.h>
+#ifndef __VXWORKS__
 #include <sys/statvfs.h>
+#endif
 #include <sys/time.h>
 #include <sys/times.h>
 #include <sys/utsname.h>

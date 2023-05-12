@@ -112,7 +112,9 @@ static char endtype(struct stat *st)
     if (S_ISLNK(mode)) return '@';
     if (S_ISREG(mode) && (mode&0111)) return '*';
     if (S_ISFIFO(mode)) return '|';
+#ifdef S_ISSOCK    
     if (S_ISSOCK(mode)) return '=';
+#endif    
   }
   return 0;
 }

@@ -514,7 +514,9 @@ void file_main(void)
       }
     } else if (S_ISFIFO(sb.st_mode)) what = "fifo";
     else if (S_ISDIR(sb.st_mode)) what = "directory";
+#ifdef  S_ISSOCK   
     else if (S_ISSOCK(sb.st_mode)) what = "socket";
+#endif    
     else if (S_ISLNK(sb.st_mode)) {
       char *lnk = xreadlink(name);
 

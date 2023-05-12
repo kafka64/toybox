@@ -157,9 +157,11 @@ void toy_singleinit(struct toy_list *which, char *argv[])
     // type data if the user's locale isn't UTF-8. (We can't merge in C.UTF-8
     // because that locale doesn't exist on macOS.)
     setlocale(LC_CTYPE, "");
+#ifndef __VXWORKS__
     if (strcmp("UTF-8", nl_langinfo(CODESET)))
       uselocale(newlocale(LC_CTYPE_MASK, "en_US.UTF-8", NULL));
-
+#endif
+    
     setvbuf(stdout, 0, (which->flags & TOYFLAG_LINEBUF) ? _IOLBF : _IONBF, 0);
   }
 }

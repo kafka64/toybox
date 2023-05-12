@@ -203,8 +203,11 @@ void cpio_main(void)
         }
         close(fd);
       }
-    } else if (!test)
+    }
+#ifndef __VXWORKS__      
+      else if (!test)
       err = mknod(name, mode, dev_makedev(x8u(toybuf+78), x8u(toybuf+86)));
+#endif
 
     // Set ownership and timestamp.
     if (!test && !err) {

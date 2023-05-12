@@ -135,9 +135,13 @@ void *memmem(const void *haystack, size_t haystack_length,
 #define bswap_32(x) OSSwapInt32(x)
 #define bswap_64(x) OSSwapInt64(x)
 
-#elif defined(__FreeBSD__) || defined(__OpenBSD__)
+#elif defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__VXWORKS__)
 
+#ifdef __VXWORKS__
+#include <endian.h>
+#else
 #include <sys/endian.h>
+#endif
 
 #if _BYTE_ORDER == _BIG_ENDIAN
 #define IS_BIG_ENDIAN 1
@@ -188,9 +192,13 @@ void *memmem(const void *haystack, size_t haystack_length,
 #include <sys/sysinfo.h>
 #endif
 
+
+
+
+
 #ifdef __APPLE__
 #include <util.h>
-#elif !defined(__FreeBSD__) && !defined(__OpenBSD__)
+#elif !defined(__FreeBSD__) && !defined(__OpenBSD__) && !defined(__VXWORKS__)
 #include <pty.h>
 #else
 #include <termios.h>
@@ -230,7 +238,12 @@ int posix_fallocate(int, off_t, off_t);
 #include <xlocale.h>
 #endif
 
-#if defined(__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__)
+#ifdef __VXWORKS__
+#include <types/vxTypesOld.h>
+#include <sys/statfs.h>
+static inline long statfs_bsize(struct statfs *sf) { return sf->f_bsize; }
+static inline long statfs_frsize(struct statfs *sf) { return sf->f_bsize; }
+#elif defined(__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__) 
 static inline long statfs_bsize(struct statfs *sf) { return sf->f_iosize; }
 static inline long statfs_frsize(struct statfs *sf) { return sf->f_bsize; }
 #else
@@ -296,6 +309,7 @@ typedef float FLOAT;
 #ifndef __uClinux__
 pid_t xfork(void);
 #endif
+
 
 // gratuitously memsets ALL the extra space with zeroes (not just a terminator)
 // but to make up for it truncating doesn't null terminate the output at all.
@@ -412,4 +426,52 @@ int timer_create_wrap(clockid_t c, struct sigevent *se, timer_t *t);
 int timer_settime_wrap(timer_t t, int flags, struct itimerspec *val,
   struct itimerspec *old);
 #define timer_settime(...) timer_settime_wrap(__VA_ARGS__)
+#endif
+
+#ifdef __VXWORKS__
+/*FIXME*/
+#define wcwidth( c )   2
+#define fstatat(fd, name, st, sym)     stat(name, st) 
+#define readlinkat(fd, name, st, sym)  readlink(name, st, sym) 
+#define mkdirat(atfd, dir, mode)       mkdir(dir, mode)
+#define fchmodat(fd, name, mode, x)    chmod(name, mode)
+#define fchownat(fd, name, mode, x)    fchown(name, mode, x)
+#define unlinkat(fd, name, x)          unlink(name )
+#define utimesat(fd, a, b, c)          utimes(a,b)
+#define linkat(fd, name, x, y, z)      link(name,y)
+#define faccessat(fd, path, mode, x)   access(path,mode)
+#define setsid()  getpid( )
+#define getsid(pid)   (pid)
+#define nl_langinfo(CODESET)   (1)
+
+#include <dirent.h>
+#include <ioLib.h>
+static inline DIR * fdopendir(int fd)
+{
+	char name[PATH_MAX+1]="";
+	ioctl(fd,FIOGETNAME, name);
+	return opendir( name );
+}
+static inline pid_t fork(void)
+{
+	return -1;
+}
+#include <spawn.h>
+#define execvp( file, argvs )  posix_spawn( NULL, file, NULL, NULL, argvs, NULL)
+#define execv( file, argvs )  posix_spawn( NULL, file, NULL, NULL, argvs, NULL)
+#define execve( pathname, argvs, envp) posix_spawn( NULL, pathname, NULL, NULL, argvs, envp)
+/* called the same names as linux, but time_t instead of timespec */
+#define st_atim   st_atime
+#define st_mtim   st_mtime
+
+/* Probably OK? */
+#define dprintf( fd, _vargs... )   fdprintf( fd, _vargs )
+#define cfsetspeed( termios_p, speed)  cfsetospeed( termios_p, speed);cfsetispeed(termios_p, speed)
+#define hstrerror(h_errno) strerror(h_errno)
+#define lchown(name, uid, gid)   chown(name, uid, gid) 
+#define IXANY 0
+#define ECHOCTL 0
+#define ECHOKE 0
+static inline int chroot(char * path) { return 0; }
+
 #endif
