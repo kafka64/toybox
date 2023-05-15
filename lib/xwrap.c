@@ -710,14 +710,12 @@ void xchroot(char *path)
   xchdir("/");
 }
 
-#ifndef __VXWORKS__
 struct passwd *xgetpwuid(uid_t uid)
 {
   struct passwd *pwd = getpwuid(uid);
   if (!pwd) error_exit("bad uid %ld", (long)uid);
   return pwd;
 }
-#endif
 
 struct group *xgetgrgid(gid_t gid)
 {
@@ -727,7 +725,6 @@ struct group *xgetgrgid(gid_t gid)
   return group;
 }
 
-#ifndef __VXWORKS__
 unsigned xgetuid(char *name)
 {
   struct passwd *up = getpwnam(name);
@@ -741,7 +738,6 @@ unsigned xgetuid(char *name)
 
   error_exit("bad user '%s'", name);
 }
-#endif
 
 unsigned xgetgid(char *name)
 {
@@ -757,7 +753,6 @@ unsigned xgetgid(char *name)
   error_exit("bad group '%s'", name);
 }
 
-#ifndef __VXWORKS__
 struct passwd *xgetpwnam(char *name)
 {
   struct passwd *up = getpwnam(name);
@@ -765,7 +760,6 @@ struct passwd *xgetpwnam(char *name)
   if (!up) perror_exit("user '%s'", name);
   return up;
 }
-#endif
 
 struct group *xgetgrnam(char *name)
 {

@@ -159,9 +159,9 @@ void xstat(char *path, struct stat *st);
 char *xabspath(char *path, int exact);
 void xchdir(char *path);
 void xchroot(char *path);
-#ifndef __VXWORKS__
 struct passwd *xgetpwuid(uid_t uid);
 struct passwd *xgetpwnam(char *name);
+#ifdef __VXWORKS__
 void xsetuser(struct passwd *pwd);
 #endif
 struct group *xgetgrgid(gid_t gid);

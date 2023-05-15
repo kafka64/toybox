@@ -112,9 +112,7 @@ static char endtype(struct stat *st)
     if (S_ISLNK(mode)) return '@';
     if (S_ISREG(mode) && (mode&0111)) return '*';
     if (S_ISFIFO(mode)) return '|';
-#ifdef S_ISSOCK    
     if (S_ISSOCK(mode)) return '=';
-#endif    
   }
   return 0;
 }
@@ -170,8 +168,10 @@ static int compare(void *a, void *b)
   if (FLAG(t)) {
     if (dta->st.st_mtime > dtb->st.st_mtime) ret = -1;
     else if (dta->st.st_mtime < dtb->st.st_mtime) ret = 1;
+#ifndef __VXWORKS__
     else if (dta->st.st_mtim.tv_nsec > dtb->st.st_mtim.tv_nsec) ret = -1;
     else if (dta->st.st_mtim.tv_nsec < dtb->st.st_mtim.tv_nsec) ret = 1;
+#endif
   }
   if (!ret) ret = strcmp(dta->name, dtb->name);
   return ret * reverse;
@@ -451,7 +451,9 @@ static void listfiles(int dirfd, struct dirtree *indir)
       if (TT.l>1) {
         char *s = tmp+strlen(tmp);
 
+#ifndef __VXWORKS__
         s += sprintf(s, ":%02d.%09d ", tm->tm_sec, (int)st->st_mtim.tv_nsec);
+#endif
         strftime(s, sizeof(tmp)-(s-tmp), "%z", tm);
       }
       zprint(zap, "s ", 17+(TT.l>1)*13, (unsigned long)tmp);

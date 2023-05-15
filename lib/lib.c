@@ -1286,7 +1286,6 @@ char *next_printf(char *s, char **start)
   return 0;
 }
 
-#ifndef __VXWORKS__
 // Return cached passwd entries.
 struct passwd *bufgetpwnamuid(char *name, uid_t uid)
 {
@@ -1343,6 +1342,8 @@ struct group *bufgetgrnamgid(char *name, gid_t gid)
     if (name ? !strcmp(name, list->gr.gr_name) : list->gr.gr_gid==gid)
       return &(list->gr);
 
+/* XXX : FIXME */
+#ifndef __VXWORKS__
   for (;;) {
     list = xrealloc(list, size *= 2);
     if (name) errno = getgrnam_r(name, &list->gr, sizeof(*list)+(char *)list,
@@ -1351,6 +1352,8 @@ struct group *bufgetgrnamgid(char *name, gid_t gid)
       size-sizeof(*list), &temp);
     if (errno != ERANGE) break;
   }
+#endif
+
   if (!temp) {
     free(list);
 
@@ -1361,7 +1364,6 @@ struct group *bufgetgrnamgid(char *name, gid_t gid)
 
   return &list->gr;
 }
-#endif
 
 struct group *bufgetgrgid(gid_t gid)
 {
@@ -1398,7 +1400,6 @@ int regexec0(regex_t *preg, char *string, long len, int nmatch,
   return regexec(preg, string, nmatch, pmatch, eflags|REG_STARTEND);
 }
 
-#ifndef __VXWORKS__
 // Return user name or string representation of number, returned buffer
 // lasts until next call.
 char *getusername(uid_t uid)
@@ -1409,7 +1410,6 @@ char *getusername(uid_t uid)
   sprintf(unum, "%u", (unsigned)uid);
   return pw ? pw->pw_name : unum;
 }
-#endif
 
 // Return group name or string representation of number, returned buffer
 // lasts until next call.

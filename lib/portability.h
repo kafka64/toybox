@@ -439,6 +439,8 @@ int timer_settime_wrap(timer_t t, int flags, struct itimerspec *val,
 
 #include <dirent.h>
 #include <ioLib.h>
+#include <userIdentLib.h>
+
 static inline DIR * fdopendir(int fd)
 {
 	char name[PATH_MAX+1]="";
@@ -453,9 +455,6 @@ static inline pid_t fork(void)
 #define execvp( file, argvs )  posix_spawn( NULL, file, NULL, NULL, argvs, NULL)
 #define execv( file, argvs )  posix_spawn( NULL, file, NULL, NULL, argvs, NULL)
 #define execve( pathname, argvs, envp) posix_spawn( NULL, pathname, NULL, NULL, argvs, envp)
-/* called the same names as linux, but time_t instead of timespec */
-#define st_atim   st_atime
-#define st_mtim   st_mtime
 
 /* Probably OK? */
 #define dprintf( fd, _vargs... )   fdprintf( fd, _vargs )
@@ -466,5 +465,8 @@ static inline pid_t fork(void)
 #define ECHOCTL 0
 #define ECHOKE 0
 static inline int chroot(char * path) { return 0; }
+
+/* Missing macro in sys/stat.h */
+#define    S_ISSOCK(m)    (((m) & S_IFMT) == S_IFSOCK)
 
 #endif
