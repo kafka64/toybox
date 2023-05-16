@@ -447,10 +447,12 @@ static inline DIR * fdopendir(int fd)
 	ioctl(fd,FIOGETNAME, name);
 	return opendir( name );
 }
+
 static inline pid_t fork(void)
 {
 	return -1;
 }
+
 #include <spawn.h>
 #define execvp( file, argvs )  posix_spawn( NULL, file, NULL, NULL, argvs, NULL)
 #define execv( file, argvs )  posix_spawn( NULL, file, NULL, NULL, argvs, NULL)
