@@ -124,11 +124,14 @@ static void print_stat(char type)
   else if (type == 'T') out('x', dev_minor(stat->st_rdev));
   else if (type == 'u') out('u', stat->st_uid);
   else if (type == 'U') strout(getusername(stat->st_uid));
+  // XXX : Out stat is not POSIX 2008 compliant yet
+#ifndef __VXWORKS__
   else if (type == 'x') date_stat_format(&stat->st_atim);
-  else if (type == 'X') out('u', stat->st_atime);
   else if (type == 'y') date_stat_format(&stat->st_mtim);
-  else if (type == 'Y') out('u', stat->st_mtime);
   else if (type == 'z') date_stat_format(&stat->st_ctim);
+#endif
+  else if (type == 'X') out('u', stat->st_atime);
+  else if (type == 'Y') out('u', stat->st_mtime);
   else if (type == 'Z') out('u', stat->st_ctime);
   else putchar('?');
 }
