@@ -246,6 +246,8 @@ static int cp_node(struct dirtree *try)
       } else if (!S_ISREG(try->st.st_mode)
                  && (try->parent || (flags & (FLAG_a|FLAG_P|FLAG_r))))
       {
+#ifndef __VXWORKS__
+        // XXX: VxWorks does not support block or character device
         // make symlink, or make block/char/fifo/socket
         if (S_ISLNK(try->st.st_mode)
             ? readlinkat0(tfd, try->name, toybuf, sizeof(toybuf)) &&
@@ -256,7 +258,7 @@ static int cp_node(struct dirtree *try)
           err = 0;
           fdout = AT_FDCWD;
         }
-
+#endif
       // Copy contents of file.
       } else {
         int fdin, ii;
@@ -274,6 +276,8 @@ static int cp_node(struct dirtree *try)
           err = 0;
         }
 
+        // XXX : is this posix/portable???
+#ifndef __VXWORKS__
         // We only copy xattrs for files because there's no flistxattrat()
         if (TT.pflags&(_CP_xattr|_CP_context)) {
           ssize_t listlen = xattr_flist(fdin, 0, 0), len;
@@ -298,7 +302,7 @@ static int cp_node(struct dirtree *try)
             free(list);
           }
         }
-
+#endif
         close(fdin);
       }
     } while (err && (flags & (FLAG_f|FLAG_n)) && !unlinkat(cfd, catch, 0));
@@ -326,12 +330,18 @@ static int cp_node(struct dirtree *try)
     }
 
     // timestamp
+    // XXX : FIXME
+#ifndef __VXWORKS__
     if (TT.pflags & _CP_timestamps) {
-      struct timespec times[] = {try->st.st_atim, try->st.st_mtim};
+      // XXX : VxWroks stat is not posix 2008 compliant
+      struct timespec atim = {try->st.st_atime, 0};
+      struct timespec mtim = {try->st.st_mtime, 0};
+      struct timespec times[] = {atim, mtim};
 
       if (fdout == AT_FDCWD) utimensat(cfd, catch, times, AT_SYMLINK_NOFOLLOW);
       else futimens(fdout, times);
     }
+#endif
 
     // mode comes last because other syscalls can strip suid bit
     if (fdout != AT_FDCWD) {

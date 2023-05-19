@@ -468,6 +468,10 @@ static inline pid_t fork(void)
 #define ECHOKE 0
 static inline int chroot(char * path) { return 0; }
 
+/* 
+ * XXX : Please move us to VxWorks source tree once testing is complete 
+ */
+
 /* Missing macro in sys/stat.h */
 #define    S_ISSOCK(m)    (((m) & S_IFMT) == S_IFSOCK)
 
